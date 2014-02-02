@@ -1,3 +1,6 @@
 [submodule "arduino-cmake"]
 	path = arduino-cmake
 	url = https://github.com/queezythegreat/arduino-cmake.git
+[submodule "ChibiOS"]
+	path = ChibiOS
+	url = https://github.com/mabl/ChibiOS.git
