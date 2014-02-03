@@ -25,10 +25,33 @@ include_directories(
 	"ChibiOS/os/hal/platforms/AVR"
 	"ChibiOS/os/hal/include"
    "ChibiOS/os/ports/GCC/AVR"
+   "ChibiOS/os/various"
    "ChibiOS/boards/ARDUINO_MEGA"
+   "i2cdevlib/Arduino/I2Cdev"
+   "i2cdevlib/Arduino/MPU6050"
+   "${PROJECT_SOURCE_DIR}"
 )
 
-set(i2cprobe_SRCS ${ChibiOS_KERNEL_SRCS} ${ChibiOS_HAL_SRCS}
+set(i2cprobe_SRCS 
+   ${CHIBIOS_KERNEL_SRCS} 
+   ${CHIBIOS_HAL_SRCS}
+   "i2cprobe.c"
+   "ChibiOS/os/various/chprintf.c"
 )
 
-generate_avr_firmware(i2cprobe)
+set(mpu6050_SRCS
+   ${CHIBIOS_KERNEL_SRCS}
+   ${CHIBIOS_HAL_SRCS}
+   "mpu6050test.cpp"
+   "i2cdevlib/Arduino/I2Cdev/I2Cdev.cpp"
+   "i2cdevlib/Arduino/MPU6050/MPU6050.cpp"
+   "ChibiOS/os/various/chprintf.c"
+)
+
+generate_avr_firmware(i2cprobe
+   SERIAL minicom -b 38400 -D @SERIAL_PORT@
+)
+
+generate_avr_firmware(mpu6050
+   SERIAL minicom -b 38400 -D @SERIAL_PORT@
+)
