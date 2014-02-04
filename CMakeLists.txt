@@ -2,7 +2,7 @@ set(CMAKE_TOOLCHAIN_FILE arduino-cmake/cmake/ArduinoToolchain.cmake)
 
 cmake_minimum_required(VERSION 2.8)
 
-project(I2CPROBE C CXX)
+project(OSTRICH C CXX)
 
 set(ARDUINO_AVRDUDE_CONFIG_PATH /usr/local/etc/avrdude.conf)
 set(ARDUINO_DEFAULT_BOARD mega)
@@ -20,10 +20,18 @@ file(GLOB CHIBIOS_HAL_SRCS
 	"ChibiOS/os/hal/platforms/AVR/*.c"
 )
 
+file(GLOB I2CDEV_LIB_SRCS
+    "i2cdevlib/Arduino/I2Cdev/*.cpp"
+)
+
+file(GLOB MPU6050_SRCS
+   "i2cdevlib/Arduino/MPU6050/*.cpp"
+)
+
 include_directories(
-	"ChibiOS/os/kernel/include"
-	"ChibiOS/os/hal/platforms/AVR"
-	"ChibiOS/os/hal/include"
+   "ChibiOS/os/kernel/include"
+   "ChibiOS/os/hal/platforms/AVR"
+   "ChibiOS/os/hal/include"
    "ChibiOS/os/ports/GCC/AVR"
    "ChibiOS/os/various"
    "ChibiOS/boards/ARDUINO_MEGA"
@@ -39,12 +47,13 @@ set(i2cprobe_SRCS
    "ChibiOS/os/various/chprintf.c"
 )
 
-set(mpu6050_SRCS
+set(mpu6050test_SRCS
    ${CHIBIOS_KERNEL_SRCS}
    ${CHIBIOS_HAL_SRCS}
+   ${CHIBIOS_VARIOUS_SRCS}
+   ${I2CDEV_LIB_SRCS}
+   ${MPU6050_SRCS}
    "mpu6050test.cpp"
-   "i2cdevlib/Arduino/I2Cdev/I2Cdev.cpp"
-   "i2cdevlib/Arduino/MPU6050/MPU6050.cpp"
    "ChibiOS/os/various/chprintf.c"
 )
 
@@ -52,6 +61,6 @@ generate_avr_firmware(i2cprobe
    SERIAL minicom -b 38400 -D @SERIAL_PORT@
 )
 
-generate_avr_firmware(mpu6050
+generate_avr_firmware(mpu6050test
    SERIAL minicom -b 38400 -D @SERIAL_PORT@
 )
