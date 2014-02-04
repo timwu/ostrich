@@ -40,13 +40,6 @@ include_directories(
    "${PROJECT_SOURCE_DIR}"
 )
 
-set(i2cprobe_SRCS 
-   ${CHIBIOS_KERNEL_SRCS} 
-   ${CHIBIOS_HAL_SRCS}
-   "i2cprobe.c"
-   "ChibiOS/os/various/chprintf.c"
-)
-
 set(mpu6050test_SRCS
    ${CHIBIOS_KERNEL_SRCS}
    ${CHIBIOS_HAL_SRCS}
@@ -55,10 +48,6 @@ set(mpu6050test_SRCS
    ${MPU6050_SRCS}
    "mpu6050test.cpp"
    "ChibiOS/os/various/chprintf.c"
-)
-
-generate_avr_firmware(i2cprobe
-   SERIAL minicom -b 38400 -D @SERIAL_PORT@
 )
 
 generate_avr_firmware(mpu6050test
