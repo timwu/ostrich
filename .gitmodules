@@ -6,4 +6,4 @@
 	url = https://github.com/mabl/ChibiOS.git
 [submodule "i2cdevlib"]
 	path = i2cdevlib
-	url = https://github.com/jrowberg/i2cdevlib.git
+	url = https://github.com/timwu/i2cdevlib.git
