@@ -53,3 +53,14 @@ set(mpu6050test_SRCS
 generate_avr_firmware(mpu6050test
    SERIAL minicom -b 38400 -D @SERIAL_PORT@
 )
+
+set(sonictest_SRCS
+   ${CHIBIOS_KERNEL_SRCS}
+   ${CHIBIOS_HAL_SRCS}
+   "sonictest.cpp"
+   "ChibiOS/os/various/chprintf.c"
+)
+
+generate_avr_firmware(sonictest
+   SERIAL minicom -b 38400 -D @SERIAL_PORT@
+)
