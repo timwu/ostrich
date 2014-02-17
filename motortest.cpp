@@ -28,23 +28,21 @@ int main(void) {
 
 	sdStart(&SD1, NULL);
 	palSetPadMode((ioportid_t) IOPORT1, 0, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode((ioportid_t) IOPORT2, 7, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode((ioportid_t) IOPORT2, 6, PAL_MODE_OUTPUT_PUSHPULL);
 	palSetPadMode((ioportid_t) IOPORT2, 5, PAL_MODE_OUTPUT_PUSHPULL);
-	palSetPadMode((ioportid_t) IOPORT2, 4, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode((ioportid_t) IOPORT5, 3, PAL_MODE_OUTPUT_PUSHPULL);
+	palSetPadMode((ioportid_t) IOPORT5, 4, PAL_MODE_OUTPUT_PUSHPULL);
 
     printf("Starting up.\n\r");
 
 	pwmStart(&PWMD1, &pwmConfig);
-//	pwmStart(&PWMD2, &pwmConfig);
+	pwmStart(&PWMD3, &pwmConfig);
 
 	printf("Arming ESCs\n\r");
-//	pwmEnableChannel(&PWMD2, 1, 100);
-//	palClearPad(IOPORT1, 0);
-	pwmEnableChannel(&PWMD1, 0, 50);
-	printf("Used config ICR1=%u OCR1A=%u TCCR1A=0x%x\n\r", ICR1, OCR1A, TCCR1A);
-//	pwmEnableChannel(&PWMD1, 2, 50);
-//	pwmEnableChannel(&PWMD1, 3, 50);
+	pwmEnableChannel(&PWMD1, 1, 40);
+	pwmEnableChannel(&PWMD1, 0, 40);
+	pwmEnableChannel(&PWMD3, 1, 40);
+	pwmEnableChannel(&PWMD3, 0, 40);
 
 	chThdSleepSeconds(1);
 
@@ -54,35 +52,32 @@ int main(void) {
 	chThdSleepSeconds(5);
 
 	printf("Spinning up ESC0\n\r");
-	for (int i = 0; i < 10; i++) {
-		pwmEnableChannel(&PWMD1, 0, 50 + i * 50);
+//	pwmEnableChannel(&PWMD1, 0, 50);
+	for (int i = 0; i < 9; i++) {
+		pwmEnableChannel(&PWMD1, 1, 40 + (5 * i));
+		pwmEnableChannel(&PWMD1, 0, 40 + (5 * i));
+		pwmEnableChannel(&PWMD3, 1, 40 + (5 * i));
+		pwmEnableChannel(&PWMD3, 0, 40 + (5 * i));
 		chThdSleepMilliseconds(200);
 	}
 
-	chThdSleepSeconds(2);
+	chThdSleepSeconds(3);
 
-	printf("Spinning up ESC1\n\r");
-	pwmEnableChannel(&PWMD1, 0, 50);
-//	pwmEnableChannel(&PWMD1, 1, 500);
-
-//	chThdSleepSeconds(2);
-
-//	pwmEnableChannel(&PWMD1, 1, 50);
-//	pwmEnableChannel(&PWMD1, 2, 500);
-//
-//	chThdSleepSeconds(2);
-//
-//	pwmEnableChannel(&PWMD1, 2, 50);
-//	pwmEnableChannel(&PWMD1, 3, 500);
-//
-//	chThdSleepSeconds(2);
-//
-//	pwmEnableChannel(&PWMD1, 3, 50);
+	pwmEnableChannel(&PWMD1, 1, 40);
+	pwmEnableChannel(&PWMD1, 0, 40);
+	pwmEnableChannel(&PWMD3, 1, 40);
+	pwmEnableChannel(&PWMD3, 0, 40);
 
 	printf("Stopping test\n\r");
 
-	pwmDisableChannel(&PWMD1, 0);
+	chThdSleepSeconds(2);
+
 	palClearPad(IOPORT1, 0);
+
+	pwmDisableChannel(&PWMD1, 1);
+	pwmDisableChannel(&PWMD1, 0);
+	pwmDisableChannel(&PWMD3, 1);
+	pwmDisableChannel(&PWMD3, 0);
 
 	while (TRUE) {
 		chThdSleepSeconds(2);

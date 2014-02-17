@@ -40,7 +40,7 @@
  */
 #define AVR_PWM_USE_TIM1                   TRUE
 #define AVR_PWM_USE_TIM2                   FALSE
-#define AVR_PWM_USE_TIM3                   FALSE
+#define AVR_PWM_USE_TIM3                   TRUE
 #define AVR_PWM_USE_TIM4                   FALSE
 #define AVR_PWM_USE_TIM5                   FALSE
 
