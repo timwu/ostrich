@@ -1,72 +1,64 @@
+#include <ch.h>
+#include <hal.h>
+#include <avr/interrupt.h>
 
 #include "util.h"
 
-#include <ch.h>
-#include <hal.h>
-#include <chprintf.h>
+volatile static uint8_t pingState = 0;
+volatile static systime_t startTick = 0;
 
+volatile static systime_t distanceTicks = 0;
 
-WORKING_AREA(ECHO_THREAD, 64);
-WORKING_AREA(PRINTER_THREAD, 128);
+CH_IRQ_HANDLER(PCINT0_vect) {
+  CH_IRQ_PROLOGUE();
 
-static systime_t distanceTicks = 0;
+  if (pingState == 1) {
+    startTick = chTimeNow();
+    pingState = 2;
+  }
+  else if (pingState == 2) {
+    distanceTicks = chTimeElapsedSince(startTick);
+    pingState = 0;
+  }
 
-static msg_t echoRun(void* ignore) {
-	while (true) {
-		// Pulse in
-		palSetPad(IOPORT1, 0);
-		chThdSleepMicroseconds(20);
-		palClearPad(IOPORT1, 0);
-
-		systime_t start = chTimeNow();
-		// Wait for leading edge of the echo
-		while (palReadPad(IOPORT1, 1) == PAL_LOW) {
-			if (chTimeElapsedSince(start) >= MS2ST(100)) {
-				goto endloop;
-			}
-		}
-
-		// Clock in
-		start = chTimeNow();
-
-		while (palReadPad(IOPORT1, 1) == PAL_HIGH) {
-			if (chTimeElapsedSince(start) >= MS2ST(100)) {
-				goto endloop;
-			}
-		}
-
-		distanceTicks = chTimeElapsedSince(start);
-
-		endloop:
-		chThdSleepMilliseconds(1000);
-
-	}
-	return (msg_t) 0;
+  CH_IRQ_EPILOGUE();
 }
 
-static msg_t printerRun(void* ignore) {
-	while (true) {
-		printf("Distance ticks is %d\r\n", distanceTicks);
-		chThdSleepSeconds(1);
-	}
-	return (msg_t) 0;
+WORKING_AREA(ECHO_THREAD, 64);
+
+static msg_t echoRun(void* ignore) {
+  while (true) {
+    // Pulse in
+
+    pingState = 1;
+    palSetPad(IOPORT1, 0);
+    chThdSleepMicroseconds(20);
+    palClearPad(IOPORT1, 0);
+
+    printf("Distance ticks is %d\r\n", distanceTicks);
+
+    chThdSleepMilliseconds(200);
+
+  }
+  return (msg_t) 0;
 }
 
 int main(void) {
-	halInit();
-	chSysInit();
-	sdStart(&SD1, NULL);
+  halInit();
+  chSysInit();
+  sdStart(&SD1, NULL);
 
-	palSetPadMode((ioportid_t) IOPORT1, 0, PAL_MODE_OUTPUT_PUSHPULL);
-	palClearPad(IOPORT1, 0);
-	palSetPadMode((ioportid_t) IOPORT2, 7, PAL_MODE_OUTPUT_PUSHPULL);
-	palClearPad(IOPORT2, 7);
-	palSetPadMode((ioportid_t) IOPORT1, 1, PAL_MODE_INPUT);
+  palSetPadMode((ioportid_t) IOPORT1, 0, PAL_MODE_OUTPUT_PUSHPULL);
+  palClearPad(IOPORT1, 0);
+  palSetPadMode((ioportid_t) IOPORT2, 0, PAL_MODE_INPUT);
 
-	chThdCreateStatic(ECHO_THREAD, sizeof(ECHO_THREAD), NORMALPRIO, echoRun, NULL);
-	chThdCreateStatic(PRINTER_THREAD, sizeof(PRINTER_THREAD), NORMALPRIO, printerRun, NULL);
+  PCICR |= (1 << PCIE0);
+  PCMSK0 |= (1 << PCINT0);
 
-	while (true) {
-		chThdSleepSeconds(1);
-	}
+  chThdCreateStatic(ECHO_THREAD, sizeof(ECHO_THREAD), NORMALPRIO, echoRun,
+      NULL);
+
+  while (true) {
+    chThdSleepSeconds(1);
+  }
 }
