@@ -8,13 +8,7 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#ifndef PORTA
-#define PORTA
-#endif
-
-#ifndef PORTB
-#define PORTB
-#endif
+#include <chprintf.h>
 
 #define printf(...) chprintf((BaseSequentialStream *) &SD1, __VA_ARGS__)
 
