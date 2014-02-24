@@ -4,21 +4,16 @@
 
 #include "util.h"
 
-volatile static uint8_t pingState = 0;
-volatile static systime_t startTick = 0;
-
-volatile static systime_t distanceTicks = 0;
+volatile static halrtcnt_t startTick = 0;
+volatile static halrtcnt_t distanceTicks = 0;
 
 CH_IRQ_HANDLER(PCINT0_vect) {
   CH_IRQ_PROLOGUE();
 
-  if (pingState == 1) {
-    startTick = chTimeNow();
-    pingState = 2;
-  }
-  else if (pingState == 2) {
-    distanceTicks = chTimeElapsedSince(startTick);
-    pingState = 0;
+  if (palReadPad(IOPORT2, 0) == PAL_HIGH) {
+    startTick = halGetCounterValue();
+  } else {
+    distanceTicks = halGetCounterValue() - startTick;
   }
 
   CH_IRQ_EPILOGUE();
@@ -30,12 +25,11 @@ static msg_t echoRun(void* ignore) {
   while (true) {
     // Pulse in
 
-    pingState = 1;
     palSetPad(IOPORT1, 0);
     chThdSleepMicroseconds(20);
     palClearPad(IOPORT1, 0);
 
-    printf("Distance ticks is %d\r\n", distanceTicks);
+    printf("Distance ticks is %dus\r\n", distanceTicks);
 
     chThdSleepMilliseconds(200);
 
@@ -52,8 +46,8 @@ int main(void) {
   palClearPad(IOPORT1, 0);
   palSetPadMode((ioportid_t) IOPORT2, 0, PAL_MODE_INPUT);
 
-  PCICR |= (1 << PCIE0);
-  PCMSK0 |= (1 << PCINT0);
+  PCICR |= _BV(PCIE0);
+  PCMSK0 |= _BV(PCINT0);
 
   chThdCreateStatic(ECHO_THREAD, sizeof(ECHO_THREAD), NORMALPRIO, echoRun,
       NULL);
