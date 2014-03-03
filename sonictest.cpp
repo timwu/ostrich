@@ -3,25 +3,51 @@
 #include <avr/interrupt.h>
 
 #include "util.h"
+#include "pin_mappings.h"
 
-volatile static halrtcnt_t startTick = 0;
-volatile static halrtcnt_t distanceTicks = 0;
+static halrtcnt_t startTick[6] = {0, 0, 0, 0, 0, 0};
+volatile static uint32_t width[6] = {0, 0, 0, 0, 0, 0};
 
-CH_IRQ_HANDLER(PCINT0_vect) {
-  CH_IRQ_PROLOGUE();
-
-  if (palReadPad(IOPORT2, 0) == PAL_HIGH) {
-    startTick = halGetCounterValue();
+void extInterruptHandler(EXTDriver *extp, expchannel_t channel) {
+  if (readIntPad(channel) == PAL_HIGH) {
+    startTick[channel] = halGetCounterValue();
   } else {
-    distanceTicks = halGetCounterValue() - startTick;
+    width[channel] = halGetCounterValue() - startTick[channel];
   }
-
-  CH_IRQ_EPILOGUE();
 }
 
-WORKING_AREA(ECHO_THREAD, 64);
+static EXTConfig extConfig = {
+    {
+        {EXT_CH_MODE_BOTH_EDGES, extInterruptHandler},
+        {EXT_CH_MODE_BOTH_EDGES, extInterruptHandler},
+        {EXT_CH_MODE_BOTH_EDGES, extInterruptHandler},
+        {EXT_CH_MODE_BOTH_EDGES, extInterruptHandler},
+        {EXT_CH_MODE_BOTH_EDGES, extInterruptHandler},
+        {EXT_CH_MODE_BOTH_EDGES, extInterruptHandler},
+    }
+};
 
-static msg_t echoRun(void* ignore) {
+int main(void) {
+  halInit();
+  chSysInit();
+  sdStart(&SD1, NULL);
+  extStart(&EXTD1, &extConfig);
+
+  palSetPadMode(IOPORT2, 7, PAL_MODE_OUTPUT_PUSHPULL);
+  palSetPad(IOPORT2, 7);
+  palSetPadMode(IOPORT1, 0, PAL_MODE_OUTPUT_PUSHPULL);
+  palClearPad(IOPORT1, 0);
+
+  extChannelEnable(&EXTD1, 0);
+  extChannelEnable(&EXTD1, 1);
+  extChannelEnable(&EXTD1, 2);
+  extChannelEnable(&EXTD1, 3);
+  extChannelEnable(&EXTD1, 4);
+  extChannelEnable(&EXTD1, 5);
+  palSetPadMode(IOPORT2, 0, PAL_MODE_INPUT);
+
+  printf("Starting...\r\n");
+
   while (true) {
     // Pulse in
 
@@ -29,30 +55,9 @@ static msg_t echoRun(void* ignore) {
     chThdSleepMicroseconds(20);
     palClearPad(IOPORT1, 0);
 
-    printf("Distance ticks is %dus\r\n", distanceTicks);
+    printf("Distance ticks are {%u, %u, %u, %u, %u, %u}\r\n", width[0], width[1], width[2], width[3], width[4], width[5]);
 
     chThdSleepMilliseconds(200);
 
-  }
-  return (msg_t) 0;
-}
-
-int main(void) {
-  halInit();
-  chSysInit();
-  sdStart(&SD1, NULL);
-
-  palSetPadMode((ioportid_t) IOPORT1, 0, PAL_MODE_OUTPUT_PUSHPULL);
-  palClearPad(IOPORT1, 0);
-  palSetPadMode((ioportid_t) IOPORT2, 0, PAL_MODE_INPUT);
-
-  PCICR |= _BV(PCIE0);
-  PCMSK0 |= _BV(PCINT0);
-
-  chThdCreateStatic(ECHO_THREAD, sizeof(ECHO_THREAD), NORMALPRIO, echoRun,
-      NULL);
-
-  while (true) {
-    chThdSleepSeconds(1);
   }
 }
