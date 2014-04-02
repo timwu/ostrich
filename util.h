@@ -9,7 +9,6 @@
 #define UTIL_H_
 
 #include <chprintf.h>
-
 #define printf(...) chprintf((BaseSequentialStream *) &SD1, __VA_ARGS__)
 
 #endif /* UTIL_H_ */
