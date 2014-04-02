@@ -530,6 +530,13 @@
 /* Port-specific settings (override port settings defaulted in chcore.h).    */
 /*===========================================================================*/
 
+/**
+ * @brief   Float type support.
+ */
+#if !defined(CHPRINTF_USE_FLOAT) || defined(__DOXYGEN__)
+#define CHPRINTF_USE_FLOAT          TRUE
+#endif
+
 #endif  /* _CHCONF_H_ */
 
 /** @} */
