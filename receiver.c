@@ -11,26 +11,29 @@
 #include "pins.h"
 
 #define N_CHANNELS 6
-#define WINDOW_SIZE 8
+#define WINDOW_SIZE 16
+
+#define MIN 250
+#define MAX 510
+#define BOOL_THRESHOLD 400
+
+#define ROLLING_AVERAGE FALSE
 
 typedef struct {
-  uint16_t min;
-  uint16_t max;
   halrtcnt_t start;
+#if ROLLING_AVERAGE
   uint8_t slot;
   volatile uint16_t slots[WINDOW_SIZE];
+#else
+  uint8_t count;
+  uint16_t accumulator;
+  volatile uint16_t currentValue;
+#endif
 } channel_t;
 
-// Calibration data
-static channel_t channels[N_CHANNELS] = {
-    {.min = 280, .max = 490},
-    {.min = 295, .max = 456},
-    {.min = 293, .max = 461},
-    {.min = 279, .max = 475},
-    {.min = 475, .max = 475},
-    {.min = 475, .max = 475}
-};
+static channel_t channels[N_CHANNELS];
 
+#if ROLLING_AVERAGE
 static uint16_t readChannel(uint8_t channelIndex) {
   uint16_t v = 0;
   uint8_t i = 0;
@@ -40,6 +43,9 @@ static uint16_t readChannel(uint8_t channelIndex) {
   }
   return v / WINDOW_SIZE;
 }
+#else
+#define readChannel(index) (channels[(index)].currentValue)
+#endif
 
 static void isr(EXTDriver* extDriver, expchannel_t channelIndex) {
   uint8_t value = readIntPad(channelIndex);
@@ -47,9 +53,23 @@ static void isr(EXTDriver* extDriver, expchannel_t channelIndex) {
   if (value == PAL_HIGH) {
     channel->start = halGetCounterValue();
   } else {
-    channel->slots[channel->slot] = halGetCounterValue() - channel->start;
+    halrtcnt_t width = (halGetCounterValue() - channel->start);
+    // Filter out bogus signals
+    if (width < MIN || width > MAX) {
+      return;
+    }
+#if ROLLING_AVERAGE
+    channel->slots[channel->slot] = width;
     channel->slot = (channel->slot + 1) % WINDOW_SIZE;
+#else
+    channel->accumulator += width;
+    if (++channel->count >= WINDOW_SIZE) {
+      channel->currentValue = channel->accumulator / channel->count;
+      channel->accumulator = 0;
+      channel->count = 0;
+    }
   }
+#endif
 }
 
 static EXTConfig extConfig = {
@@ -87,19 +107,13 @@ void receiverSetup() {
 
 float receiverGetFloat(uint8_t channel) {
   uint16_t current = readChannel(channel);
-  if (current < channels[channel].min) {
-    return -1.0;
-  } else if (current > channels[channel].max) {
-    return 1.0;
-  } else {
-    return ((current - channels[channel].min) * 2.0f) / (channels[channel].max - channels[channel].min) - 1.0f;
-  }
+  return ((current - MIN) * 2.0f) / (MAX - MIN) - 1.0f;
 }
 
 uint8_t receiverGetBoolean(uint8_t channel) {
-  if (readChannel(channel) > channels[channel].max) {
-    return 1;
-  } else {
-    return 0;
-  }
+  return readChannel(channel) > BOOL_THRESHOLD;
+}
+
+uint16_t receiverGetRaw(uint8_t channel) {
+  return readChannel(channel);
 }
