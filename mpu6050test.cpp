@@ -6,7 +6,6 @@
  */
 
 #include <ch.h>
-#include <chprintf.h>
 #include <hal.h>
 #include <i2c.h>
 #include <MPU6050.h>
