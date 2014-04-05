@@ -8,6 +8,7 @@
 #include <ch.h>
 #include <hal.h>
 #include "motors.h"
+#include "power.h"
 #include "util.h"
 
 #define FULL_SPEED 500
@@ -46,6 +47,14 @@ void motorsSetup() {
 }
 
 void motorsSetControl(float pitch, float roll, float yaw, float throttle) {
+  if (!isOn()) {
+    pwmDisableChannel(FR.pwmDriver, FR.pwmChannel);
+    pwmDisableChannel(FL.pwmDriver, FL.pwmChannel);
+    pwmDisableChannel(RR.pwmDriver, RR.pwmChannel);
+    pwmDisableChannel(RL.pwmDriver, RL.pwmChannel);
+    return;
+  }
+
   float frontRightScale = ((pitch + roll + yaw + 3.0f) * (throttle + 1.0f)) / 12.0f;
   float frontLeftScale = ((pitch - roll - yaw + 3.0f) * (throttle + 1.0f)) / 12.0f;
   float rearRightScale = ((-pitch + roll - yaw + 3.0f) * (throttle + 1.0f)) / 12.0f;
