@@ -54,17 +54,6 @@ generate_avr_firmware(mpu6050test
    SERIAL minicom -b 38400 -D @SERIAL_PORT@
 )
 
-set(motortest_SRCS
-   ${CHIBIOS_KERNEL_SRCS}
-   ${CHIBIOS_HAL_SRCS}
-   "motortest.cpp"
-   "ChibiOS/os/various/chprintf.c"
-)
-
-generate_avr_firmware(motortest
-   SERIAL minicom -b 38400 -D @SERIAL_PORT@
-)
-
 set(ostrich_SRCS
    ${CHIBIOS_KERNEL_SRCS}
    ${CHIBIOS_HAL_SRCS}
