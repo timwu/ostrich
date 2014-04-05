@@ -73,8 +73,9 @@ set(ostrich_SRCS
    "receiver.c"
    "power.c"
    "pins.c"
+   "motors.c"
 )
 
 generate_avr_firmware(ostrich
-   SERIAL minicom -b 38400 -D @SERIAL_PORT@
+   SERIAL minicom -b 115200 -D @SERIAL_PORT@
 )
