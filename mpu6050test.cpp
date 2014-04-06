@@ -27,7 +27,7 @@ int main(void) {
 
 	while (true) {
 		mpu6050.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-		printf("%d, %d, %d\r\n", ax, ay, az);
+		printf("%d, %d, %d\r\n", gx, gy, gz);
 //		printf("gx = %d, gy = %d, gz = %d\r\n", gx, gy, gz);
 		chThdSleepMilliseconds(1000);
 	}

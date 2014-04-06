@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 void receiverSetup();
-float receiverGetFloat(uint8_t channel);
+double receiverGetDouble(uint8_t channel);
 uint8_t receiverGetBoolean(uint8_t channel);
 uint16_t receiverGetRaw(uint8_t channel);
 

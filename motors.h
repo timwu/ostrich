@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 void motorsSetup();
-void motorsSetControl(float pitch, float roll, float yaw, float throttle);
+void motorsSetControl(double pitch, double roll, double yaw, double throttle);
 
 #ifdef __cplusplus
 }

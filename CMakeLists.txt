@@ -57,12 +57,16 @@ generate_avr_firmware(mpu6050test
 set(ostrich_SRCS
    ${CHIBIOS_KERNEL_SRCS}
    ${CHIBIOS_HAL_SRCS}
+   ${I2CDEV_LIB_SRCS}
+   ${MPU6050_SRCS}
    "main.cpp"
    "ChibiOS/os/various/chprintf.c"
    "receiver.c"
    "power.c"
    "pins.c"
    "motors.c"
+   "gyro.cpp"
+   "pid.c"
 )
 
 generate_avr_firmware(ostrich

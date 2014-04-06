@@ -105,9 +105,9 @@ void receiverSetup() {
   extStart(&EXTD1, &extConfig);
 }
 
-float receiverGetFloat(uint8_t channel) {
+double receiverGetDouble(uint8_t channel) {
   uint16_t current = readChannel(channel);
-  return ((current - MIN) * 2.0f) / (MAX - MIN) - 1.0f;
+  return ((current - MIN) * 2.0) / (MAX - MIN) - 1.0;
 }
 
 uint8_t receiverGetBoolean(uint8_t channel) {

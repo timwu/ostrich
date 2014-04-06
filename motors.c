@@ -46,7 +46,7 @@ void motorsSetup() {
   pwmStart(&PWMD4, &pwmConfig);
 }
 
-void motorsSetControl(float pitch, float roll, float yaw, float throttle) {
+void motorsSetControl(double pitch, double roll, double yaw, double throttle) {
   if (!isOn()) {
     pwmDisableChannel(FR.pwmDriver, FR.pwmChannel);
     pwmDisableChannel(FL.pwmDriver, FL.pwmChannel);
@@ -55,13 +55,21 @@ void motorsSetControl(float pitch, float roll, float yaw, float throttle) {
     return;
   }
 
-  float frontRightScale = ((pitch + roll + yaw + 3.0f) * (throttle + 1.0f)) / 12.0f;
-  float frontLeftScale = ((pitch - roll - yaw + 3.0f) * (throttle + 1.0f)) / 12.0f;
-  float rearRightScale = ((-pitch + roll - yaw + 3.0f) * (throttle + 1.0f)) / 12.0f;
-  float rearLeftScale = ((-pitch - roll + yaw + 3.0f) * (throttle + 1.0f)) / 12.0f;
+  double frontRightScale = ((-pitch - roll + yaw + 3.0) * (throttle + 1.0)) / 12.0;
+  double frontLeftScale = ((-pitch + roll - yaw + 3.0) * (throttle + 1.0)) / 12.0;
+  double rearRightScale = ((pitch - roll - yaw + 3.0) * (throttle + 1.0)) / 12.0;
+  double rearLeftScale = ((pitch + roll + yaw + 3.0) * (throttle + 1.0)) / 12.0;
 
-  pwmEnableChannel(FR.pwmDriver, FR.pwmChannel, lroundf(frontRightScale * FULL_SPEED));
-  pwmEnableChannel(RR.pwmDriver, RR.pwmChannel, lroundf(rearRightScale * FULL_SPEED));
-  pwmEnableChannel(FL.pwmDriver, FL.pwmChannel, lroundf(frontLeftScale * FULL_SPEED));
-  pwmEnableChannel(RL.pwmDriver, RL.pwmChannel, lroundf(rearLeftScale * FULL_SPEED));
+  uint16_t frontRightValue = lround(frontRightScale * FULL_SPEED);
+  uint16_t frontLeftValue = lround(frontLeftScale * FULL_SPEED);
+  uint16_t rearRightValue = lround(rearRightScale * FULL_SPEED);
+  uint16_t rearLeftValue = lround(rearLeftScale * FULL_SPEED);
+
+  pwmEnableChannel(FR.pwmDriver, FR.pwmChannel, frontRightValue);
+  pwmEnableChannel(RR.pwmDriver, RR.pwmChannel, rearRightValue);
+  pwmEnableChannel(FL.pwmDriver, FL.pwmChannel, frontLeftValue);
+  pwmEnableChannel(RL.pwmDriver, RL.pwmChannel, rearLeftValue);
+
+//  printf("%f, %f, %f, %f\r\n", frontRightScale, rearRightScale, rearLeftScale, frontLeftScale);
+//  printf("%u, %u, %u, %u\r\n", frontRightValue, rearRightValue, rearLeftValue, frontLeftValue);
 }
