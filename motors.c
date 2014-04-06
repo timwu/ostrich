@@ -11,7 +11,8 @@
 #include "power.h"
 #include "util.h"
 
-#define FULL_SPEED 500
+#define FULL_SPEED 200
+#define SPEED_FLOOR 40
 
 typedef struct {
   ioportid_t port;
@@ -60,10 +61,10 @@ void motorsSetControl(double pitch, double roll, double yaw, double throttle) {
   double rearRightScale = ((pitch - roll - yaw + 3.0) * (throttle + 1.0)) / 12.0;
   double rearLeftScale = ((pitch + roll + yaw + 3.0) * (throttle + 1.0)) / 12.0;
 
-  uint16_t frontRightValue = lround(frontRightScale * FULL_SPEED);
-  uint16_t frontLeftValue = lround(frontLeftScale * FULL_SPEED);
-  uint16_t rearRightValue = lround(rearRightScale * FULL_SPEED);
-  uint16_t rearLeftValue = lround(rearLeftScale * FULL_SPEED);
+  uint16_t frontRightValue = lround(frontRightScale * FULL_SPEED) + SPEED_FLOOR;
+  uint16_t frontLeftValue = lround(frontLeftScale * FULL_SPEED) + SPEED_FLOOR;
+  uint16_t rearRightValue = lround(rearRightScale * FULL_SPEED) + SPEED_FLOOR;
+  uint16_t rearLeftValue = lround(rearLeftScale * FULL_SPEED) + SPEED_FLOOR;
 
   pwmEnableChannel(FR.pwmDriver, FR.pwmChannel, frontRightValue);
   pwmEnableChannel(RR.pwmDriver, RR.pwmChannel, rearRightValue);
