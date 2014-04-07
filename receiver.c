@@ -107,7 +107,7 @@ void receiverSetup() {
 
 double receiverGetDouble(uint8_t channel) {
   uint16_t current = readChannel(channel);
-  return ((current - MIN) * 2.0) / (MAX - MIN) - 1.0;
+  return ((double) (current - MIN)) / (MAX - MIN);
 }
 
 uint8_t receiverGetBoolean(uint8_t channel) {

@@ -9,8 +9,8 @@
 #define POWER_H_
 
 #include <ch.h>
+#include <hal.h>
 
-#define POWER_CHANNEL 4
 #define POWER_PORT IOPORT6
 #define POWER_PAD 6
 
@@ -19,7 +19,7 @@ extern "C" {
 #endif
 
 void powerSetup();
-bool_t isOn();
+bool_t powerIsOn();
 
 #ifdef __cplusplus
 }

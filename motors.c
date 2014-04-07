@@ -19,11 +19,12 @@ typedef struct {
   uint8_t pad;
   PWMDriver* pwmDriver;
   uint8_t pwmChannel;
+  uint16_t offset;
 } motor_t;
 
 static motor_t FR = { IOPORT5, 4, &PWMD3, 1 };
 static motor_t RR = { IOPORT5, 5, &PWMD3, 2 };
-static motor_t FL = { IOPORT8, 4, &PWMD4, 1 };
+static motor_t FL = { IOPORT8, 4, &PWMD4, 1, 2 };
 static motor_t RL = { IOPORT8, 3, &PWMD4, 0 };
 
 static PWMConfig pwmConfig = {
@@ -48,7 +49,7 @@ void motorsSetup() {
 }
 
 void motorsSetControl(double pitch, double roll, double yaw, double throttle) {
-  if (!isOn()) {
+  if (!powerIsOn()) {
     pwmDisableChannel(FR.pwmDriver, FR.pwmChannel);
     pwmDisableChannel(FL.pwmDriver, FL.pwmChannel);
     pwmDisableChannel(RR.pwmDriver, RR.pwmChannel);
@@ -56,15 +57,15 @@ void motorsSetControl(double pitch, double roll, double yaw, double throttle) {
     return;
   }
 
-  double frontRightScale = ((-pitch - roll + yaw + 3.0) * (throttle + 1.0)) / 12.0;
-  double frontLeftScale = ((-pitch + roll - yaw + 3.0) * (throttle + 1.0)) / 12.0;
-  double rearRightScale = ((pitch - roll - yaw + 3.0) * (throttle + 1.0)) / 12.0;
-  double rearLeftScale = ((pitch + roll + yaw + 3.0) * (throttle + 1.0)) / 12.0;
+  double frontRightScale = ((-pitch - roll + yaw + 3.0) * throttle) / 6.0;
+  double frontLeftScale = ((-pitch + roll - yaw + 3.0) * throttle) / 6.0;
+  double rearRightScale = ((pitch - roll - yaw + 3.0) * throttle) / 6.0;
+  double rearLeftScale = ((pitch + roll + yaw + 3.0) * throttle) / 6.0;
 
-  uint16_t frontRightValue = lround(frontRightScale * FULL_SPEED) + SPEED_FLOOR;
-  uint16_t frontLeftValue = lround(frontLeftScale * FULL_SPEED) + SPEED_FLOOR;
-  uint16_t rearRightValue = lround(rearRightScale * FULL_SPEED) + SPEED_FLOOR;
-  uint16_t rearLeftValue = lround(rearLeftScale * FULL_SPEED) + SPEED_FLOOR;
+  uint16_t frontRightValue = lround(frontRightScale * FULL_SPEED) + SPEED_FLOOR + FR.offset;
+  uint16_t frontLeftValue = lround(frontLeftScale * FULL_SPEED) + SPEED_FLOOR + FL.offset;
+  uint16_t rearRightValue = lround(rearRightScale * FULL_SPEED) + SPEED_FLOOR + RR.offset;
+  uint16_t rearLeftValue = lround(rearLeftScale * FULL_SPEED) + SPEED_FLOOR + RL.offset;
 
   pwmEnableChannel(FR.pwmDriver, FR.pwmChannel, frontRightValue);
   pwmEnableChannel(RR.pwmDriver, RR.pwmChannel, rearRightValue);

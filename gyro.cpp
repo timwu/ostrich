@@ -9,7 +9,7 @@
 #include <MPU6050.h>
 #include "util.h"
 
-#define DISABLE FALSE
+#define DISABLE TRUE
 
 #define ALMOST_ZERO 10
 #define ROUND(x) ((x) < ALMOST_ZERO && (x) > -ALMOST_ZERO ? 0 : (x));

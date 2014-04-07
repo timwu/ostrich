@@ -8,6 +8,8 @@
 #ifndef RECEIVER_H_
 #define RECEIVER_H_
 
+#include <ch.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
