@@ -11,6 +11,8 @@
 
 #define DISABLE FALSE
 
+#define ALMOST_ZERO 10
+#define ROUND(x) ((x) < ALMOST_ZERO && (x) > -ALMOST_ZERO ? 0 : (x));
 #define CALIBRATION_SAMPLES 128
 
 static int16_t pitchOffset = 0;
@@ -45,7 +47,7 @@ int16_t gyroGetPitchRotation() {
 #if DISABLE
   return 0;
 #else
-  return mpu6050.getRotationY() - pitchOffset;
+  return ROUND(mpu6050.getRotationY() - pitchOffset);
 #endif
 }
 
@@ -53,7 +55,7 @@ int16_t gyroGetRollRotation() {
 #if DISABLE
   return 0;
 #else
-  return mpu6050.getRotationX() - rollOffset;
+  return ROUND(mpu6050.getRotationX() - rollOffset);
 #endif
 }
 
@@ -61,6 +63,6 @@ int16_t gyroGetYawRotation() {
 #if DISABLE
   return 0;
 #else
-  return mpu6050.getRotationZ() - yawOffset;
+  return ROUND(mpu6050.getRotationZ() - yawOffset);
 #endif
 }
