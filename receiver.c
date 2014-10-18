@@ -110,7 +110,7 @@ double receiverGetDouble(uint8_t channel) {
   return ((double) (current - MIN)) / (MAX - MIN);
 }
 
-uint8_t receiverGetBoolean(uint8_t channel) {
+bool receiverGetBoolean(uint8_t channel) {
   return readChannel(channel) > BOOL_THRESHOLD;
 }
 

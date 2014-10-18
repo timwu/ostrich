@@ -17,10 +17,10 @@ static volatile bool_t on = 0;
 
 static void checkFunc(void * param) {
   if (!pilotGetPower()) {
-    on = TRUE;
+    on = true;
     palSetPad(POWER_PORT, POWER_PAD);
   } else {
-    on = FALSE;
+    on = false;
     palClearPad(POWER_PORT, POWER_PAD);
   }
   chVTSet(&vt, MS2ST(POLL_INTERVAL), checkFunc, NULL);

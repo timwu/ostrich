@@ -35,7 +35,7 @@ double pilotGetThrottle() {
   return receiverGetDouble(THROTTLE_CH);
 }
 
-bool_t pilotGetPower() {
+bool pilotGetPower() {
   return receiverGetBoolean(POWER_CH);
 }
 

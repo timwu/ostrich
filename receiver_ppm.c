@@ -133,7 +133,7 @@ float receiverGetFloat(uint8_t channel) {
   }
 }
 
-uint8_t receiverGetBoolean(uint8_t channel) {
+bool receiverGetBoolean(uint8_t channel) {
   if (readChannel(channel) > channels[channel].max) {
     return 1;
   } else {
