@@ -32,7 +32,3 @@ int main(void) {
 		chThdSleepMilliseconds(1000);
 	}
 }
-
-
-
-
