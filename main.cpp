@@ -6,7 +6,6 @@
  */
 #include <ch.h>
 #include <hal.h>
-#include "gyro.h"
 #include "pilot.h"
 #include "power.h"
 #include "motors.h"
@@ -33,17 +32,16 @@ int main(void) {
   pilotSetup();
   powerSetup();
   motorsSetup();
-  gyroSetup();
 
   pidInit(&pitchPID, 1.0 / 20000.0, 1.0 / 10000, 0);
   pidInit(&rollPID, 1.0 / 20000.0, 1.0 / 10000, 0);
   pidInit(&yawPID, 1.0 / 20000.0, 1.0 / 10000, 0);
 
   while (TRUE) {
-    double pitch = pilotGetPitch() - pidUpdate(&pitchPID, 0.0, gyroGetPitchRotation());
-    double roll = pilotGetRoll() - pidUpdate(&rollPID, 0, gyroGetRollRotation());
-    double yaw = pilotGetYaw() - pidUpdate(&yawPID, 0, gyroGetYawRotation());
-    motorsSetControl(CLIP(pitch), CLIP(roll), CLIP(yaw), pilotGetThrottle());
+//    double pitch = pilotGetPitch() - pidUpdate(&pitchPID, 0.0, gyroGetPitchRotation());
+//    double roll = pilotGetRoll() - pidUpdate(&rollPID, 0, gyroGetRollRotation());
+//    double yaw = pilotGetYaw() - pidUpdate(&yawPID, 0, gyroGetYawRotation());
+//    motorsSetControl(CLIP(pitch), CLIP(roll), CLIP(yaw), pilotGetThrottle());
 //    uint16_t throttle = receiverGetRaw(THROTTLE_CH);
 //    uint16_t pitch = receiverGetRaw(PITCH_CH);
 //    uint16_t roll = receiverGetRaw(ROLL_CH);
@@ -52,7 +50,7 @@ int main(void) {
 //    printf("%u\r\n", receiverGetRaw(4));
 //    printf("%f, %f, %f\r\n", receiverGetDouble(PITCH_CH), receiverGetDouble(ROLL_CH), receiverGetDouble(YAW_CH));
 //    printf("%d, %d, %d\r\n", gyroGetPitchRotation(), gyroGetRollRotation(), gyroGetYawRotation());
-    printf("%f, %f, %f\r\n", pitch, roll, yaw);
+//    printf("%f, %f, %f\r\n", pitch, roll, yaw);
 //    printf("%f, %f, %f\r\n", pitchPID.integral, rollPID.integral, yawPID.integral);
     chThdSleepMilliseconds(50);
   }

@@ -65,7 +65,6 @@ set(ostrich_SRCS
    "power.c"
    "pins.c"
    "motors.c"
-   "gyro.cpp"
    "pid.c"
    "pilot_receiver.c"
 )
