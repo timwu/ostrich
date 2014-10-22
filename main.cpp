@@ -9,6 +9,7 @@
 #include "pilot.h"
 #include "power.h"
 #include "motors.h"
+#include "imu.h"
 #include "util.h"
 #include "pid.h"
 
@@ -32,12 +33,14 @@ int main(void) {
   pilotSetup();
   powerSetup();
   motorsSetup();
+  imuSetup();
 
   pidInit(&pitchPID, 1.0 / 20000.0, 1.0 / 10000, 0);
   pidInit(&rollPID, 1.0 / 20000.0, 1.0 / 10000, 0);
   pidInit(&yawPID, 1.0 / 20000.0, 1.0 / 10000, 0);
 
   while (TRUE) {
+    printf("yaw rate %f\r\n", imuGetYawRate());
 //    double pitch = pilotGetPitch() - pidUpdate(&pitchPID, 0.0, gyroGetPitchRotation());
 //    double roll = pilotGetRoll() - pidUpdate(&rollPID, 0, gyroGetRollRotation());
 //    double yaw = pilotGetYaw() - pidUpdate(&yawPID, 0, gyroGetYawRotation());

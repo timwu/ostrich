@@ -17,7 +17,7 @@ extern "C" {
 void pilotSetup();
 double pilotGetPitch();
 double pilotGetRoll();
-double pilotGetYaw();
+double pilotGetYawRate();
 double pilotGetThrottle();
 bool_t pilotGetPower();
 

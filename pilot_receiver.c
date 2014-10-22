@@ -15,6 +15,8 @@
 #define YAW_CH 3
 #define THROTTLE_CH 2
 
+#define MAX_YAW_RATE 90
+
 void pilotSetup() {
   receiverSetup();
 }
@@ -27,8 +29,8 @@ double pilotGetRoll() {
   return ROUND(receiverGetDouble(ROLL_CH) * 2.0 - 1.0);
 }
 
-double pilotGetYaw() {
-  return ROUND(receiverGetDouble(YAW_CH) * 2.0 - 1.0);
+double pilotGetYawRate() {
+  return ROUND(receiverGetDouble(YAW_CH) * 2.0 - 1.0) * MAX_YAW_RATE;
 }
 
 double pilotGetThrottle() {

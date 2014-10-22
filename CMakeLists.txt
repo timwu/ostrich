@@ -67,6 +67,7 @@ set(ostrich_SRCS
    "motors.c"
    "pid.c"
    "pilot_receiver.c"
+   "imu.cpp"
 )
 
 generate_avr_firmware(ostrich
