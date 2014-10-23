@@ -10,18 +10,41 @@
 #include <math.h>
 #include "util.h"
 
-#define DISABLE TRUE
-
 #define ALMOST_ZERO 0.25
 #define ROUND(x) ((x) < ALMOST_ZERO && (x) > -ALMOST_ZERO ? 0 : (x));
 #define CALIBRATION_SAMPLES 128
-#define TO_RADS (180 / M_PI)
+#define TO_DEGREES(x) ((180 / M_PI) * x)
+#define ACCEL_WEIGHT 0.5
+#define UPDATE_INTERVAL_MS 50
 
 static int16_t gyroOffset[3];
 static double pitchOffset, rollOffset;
 
+static double pitch, roll;
+static double yawRate;
+
+static WORKING_AREA(updateThreadArea, 128);
+
 static I2CConfig i2cconfig;
 static MPU6050 mpu6050;
+
+static msg_t imuUpdate(void *) {
+  int16_t ax, ay, az, gx, gy, gz;
+  double prevPitch = pitch, prevRoll = roll, dt;
+  long tick = halGetCounterValue();
+
+  while (true) {
+    mpu6050.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+    yawRate = ROUND((gz - gyroOffset[2]) / 131.0);
+    dt = ((double) (halGetCounterValue() - tick)) / halGetCounterFrequency();
+    pitch = ACCEL_WEIGHT * (TO_DEGREES(atan2(ax, az)) - pitchOffset) + (1 - ACCEL_WEIGHT) * (((gy - gyroOffset[1]) / 131.0) * dt + prevPitch);
+    roll = ACCEL_WEIGHT * (TO_DEGREES(atan2(ay, az)) - rollOffset) + (1 - ACCEL_WEIGHT) * (((gx - gyroOffset[0]) / 131.0) * dt + prevRoll);
+    tick = halGetCounterValue();
+    prevPitch = pitch;
+    prevRoll = roll;
+    chThdSleepMilliseconds(UPDATE_INTERVAL_MS);
+  }
+}
 
 void imuSetup() {
   i2cStart(&I2CD1, &i2cconfig);
@@ -54,25 +77,26 @@ void imuSetup() {
   accelSum[1] /= CALIBRATION_SAMPLES;
   accelSum[2] /= CALIBRATION_SAMPLES;
 
-  pitchOffset = atan2(accelSum[0], accelSum[2]) * TO_RADS;
-  rollOffset = atan2(accelSum[1], accelSum[2]) * TO_RADS;
+  pitchOffset = TO_DEGREES(atan2(accelSum[0], accelSum[2]));
+  rollOffset = TO_DEGREES(atan2(accelSum[1], accelSum[2]));
+
+  pitch = 0;
+  roll = 0;
 
   printf("Gyro calibration complete. Offsets: (%d, %d, %d)\r\n", gyroOffset[0], gyroOffset[1], gyroOffset[2]);
   printf("Pitch offset = %f, roll offset = %f\r\n", pitchOffset, rollOffset);
+
+  chThdCreateStatic(updateThreadArea, sizeof(updateThreadArea), NORMALPRIO, imuUpdate, NULL);
 }
 
 double imuGetYawRate() {
-  return ROUND((mpu6050.getRotationZ() - gyroOffset[2]) / 131.0);
+  return yawRate;
 }
 
 double imuGetPitch() {
-  int16_t ax, ay, az;
-  mpu6050.getAcceleration(&ax, &ay, &az);
-  return (atan2(ax, az) * TO_RADS) - pitchOffset;
+  return pitch;
 }
 
 double imuGetRoll() {
-  int16_t ax, ay, az;
-  mpu6050.getAcceleration(&ax, &ay, &az);
-  return (atan2(ay, az) * TO_RADS) - rollOffset;
+  return roll;
 }
