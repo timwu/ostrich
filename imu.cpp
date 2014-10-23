@@ -23,11 +23,12 @@ static double pitchOffset, rollOffset;
 static double pitch, roll;
 static double yawRate;
 
-static WORKING_AREA(updateThreadArea, 128);
+static WORKING_AREA(updateThreadArea, 64);
 
 static I2CConfig i2cconfig;
 static MPU6050 mpu6050;
 
+__attribute__((noreturn))
 static msg_t imuUpdate(void *) {
   int16_t ax, ay, az, gx, gy, gz;
   double prevPitch = pitch, prevRoll = roll, dt;
