@@ -41,6 +41,8 @@ int main(void) {
 
   while (TRUE) {
     printf("yaw rate %f\r\n", imuGetYawRate());
+    printf("pitch %f\r\n", imuGetPitch());
+    printf("roll %f\r\n", imuGetRoll());
 //    double pitch = pilotGetPitch() - pidUpdate(&pitchPID, 0.0, gyroGetPitchRotation());
 //    double roll = pilotGetRoll() - pidUpdate(&rollPID, 0, gyroGetRollRotation());
 //    double yaw = pilotGetYaw() - pidUpdate(&yawPID, 0, gyroGetYawRotation());
@@ -55,7 +57,7 @@ int main(void) {
 //    printf("%d, %d, %d\r\n", gyroGetPitchRotation(), gyroGetRollRotation(), gyroGetYawRotation());
 //    printf("%f, %f, %f\r\n", pitch, roll, yaw);
 //    printf("%f, %f, %f\r\n", pitchPID.integral, rollPID.integral, yawPID.integral);
-    chThdSleepMilliseconds(50);
+    chThdSleepSeconds(1);
   }
 }
 
